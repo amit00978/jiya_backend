@@ -8,7 +8,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db, close_db
-from app.routers import conversation, users, alarms, flights, chat
+from app.routers import conversation, users, alarms, flights, chat, intent
 from app.services.scheduler import scheduler
 
 # Configure logging
@@ -56,6 +56,7 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(alarms.router, prefix="/api/alarms", tags=["alarms"])
 app.include_router(flights.router, prefix="/api/flights", tags=["flights"])
 app.include_router(chat.router, tags=["chat"])  # Direct ChatGPT endpoint
+app.include_router(intent.router, tags=["intent"])  # Simple Intent Classification
 
 
 @app.get("/")
