@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     
     # Firebase
     FIREBASE_CREDENTIALS_PATH: Optional[str] = None
+    FIREBASE_PROJECT_ID: Optional[str] = None
     
     # AI Models
     DEFAULT_LLM_MODEL: str = "gpt-4o-mini"
