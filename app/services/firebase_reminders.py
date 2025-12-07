@@ -132,9 +132,15 @@ class FirebaseRemindersService:
             if not reminder_id:
                 reminder_id = f"reminder_{user_id}_{int(datetime.now().timestamp())}"
             
+            # Debug logging
+            current_time = datetime.now()
+            logger.info(f"🕐 Current server time: {current_time}")
+            logger.info(f"🕐 Scheduled time: {scheduled_time}")
+            logger.info(f"🕐 Time difference: {(scheduled_time - current_time).total_seconds()} seconds")
+            
             # Validate scheduled time
             if scheduled_time <= datetime.now():
-                raise ValueError("Scheduled time must be in the future")
+                raise ValueError(f"Scheduled time {scheduled_time} must be in the future (current: {datetime.now()})")
             
             # Create reminder data
             reminder_data = {
@@ -180,6 +186,12 @@ class FirebaseRemindersService:
     async def _send_scheduled_notification(self, reminder_data: Dict[str, Any]):
         """Send the actual Firebase notification"""
         try:
+            logger.info(f"🔔 EXECUTING scheduled notification NOW!")
+            logger.info(f"🔔 Reminder ID: {reminder_data.get('reminder_id')}")
+            logger.info(f"🔔 User: {reminder_data.get('user_id')}")
+            logger.info(f"🔔 Message: {reminder_data.get('reminder_text')}")
+            logger.info(f"🕐 Current time: {datetime.now()}")
+            
             if not self.firebase_app:
                 logger.error("❌ Firebase not initialized, cannot send notification")
                 return
