@@ -99,6 +99,7 @@ class Orchestrator:
             # Step 8: Return complete response
             return ConversationResponse(
                 success=True,
+                transcription=text,  # ✅ Include what user said
                 text_response=text_response,
                 audio_response=audio_response,
                 intent=intent.intent.value,
@@ -112,6 +113,7 @@ class Orchestrator:
             
             return ConversationResponse(
                 success=False,
+                transcription=None,  # ✅ Include transcription field
                 text_response=error_response,
                 audio_response=await self.tts_service.text_to_speech(error_response),
                 intent="error",

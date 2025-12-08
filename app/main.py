@@ -8,7 +8,7 @@ import logging
 
 from app.core.config import settings
 from app.core.database import init_db, close_db
-from app.routers import conversation, users, alarms, flights, chat, intent, firebase
+from app.routers import conversation, users, alarms, flights, chat, intent, firebase, voice_interaction
 from app.services.scheduler import scheduler
 
 # Configure logging
@@ -58,6 +58,7 @@ app.include_router(flights.router, prefix="/api/flights", tags=["flights"])
 app.include_router(chat.router, tags=["chat"])  # Direct ChatGPT endpoint
 app.include_router(intent.router, tags=["intent"])  # Simple Intent Classification
 app.include_router(firebase.router, prefix="/api/firebase", tags=["firebase"])  # Firebase notifications
+app.include_router(voice_interaction.router, prefix="/api", tags=["voice"])  # Voice interaction
 
 
 @app.get("/")

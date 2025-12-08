@@ -25,8 +25,9 @@ class ConversationRequest(BaseModel):
 class ConversationResponse(BaseModel):
     """Response from conversation endpoint"""
     success: bool
-    text_response: str
-    audio_response: Optional[str] = None  # Base64 encoded audio
+    transcription: Optional[str] = None  # What the user said (from STT)
+    text_response: str  # AI's response text
+    audio_response: Optional[str] = None  # Base64 encoded audio (TTS)
     intent: str
     confidence: float
     data: Optional[Dict[str, Any]] = None
