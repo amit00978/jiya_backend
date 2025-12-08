@@ -72,6 +72,7 @@ async def schedule_firebase_reminder(request: FirebaseReminderRequest):
     """Schedule a Firebase push notification reminder"""
     try:
         logger.info(f"🔔 Scheduling Firebase reminder for user {request.user_id}")
+        logger.info(f"📥 Request data: user_id={request.user_id}, fcm_token={request.fcm_token[:20]}..., reminder_text={request.reminder_text}, scheduled_time={request.scheduled_time}")
         
         result = await firebase_service.schedule_reminder(
             user_id=request.user_id,

@@ -3,7 +3,7 @@ Firebase Reminders Service - Handle Firebase Cloud Messaging for reminders
 """
 import logging
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 import asyncio
 from firebase_admin import credentials, messaging, initialize_app
@@ -132,15 +132,45 @@ class FirebaseRemindersService:
             if not reminder_id:
                 reminder_id = f"reminder_{user_id}_{int(datetime.now().timestamp())}"
             
-            # Debug logging
-            current_time = datetime.now()
-            logger.info(f"🕐 Current server time: {current_time}")
-            logger.info(f"🕐 Scheduled time: {scheduled_time}")
-            logger.info(f"🕐 Time difference: {(scheduled_time - current_time).total_seconds()} seconds")
+            # Debug logging for incoming data
+            logger.info(f"📥 Received schedule_reminder request:")
+            logger.info(f"   user_id: {user_id}")
+            logger.info(f"   fcm_token: {fcm_token[:30]}...")
+            logger.info(f"   reminder_text: {reminder_text}")
+            logger.info(f"   scheduled_time: {scheduled_time} (type: {type(scheduled_time)})")
+            logger.info(f"   scheduled_time.tzinfo: {scheduled_time.tzinfo}")
+            logger.info(f"   reminder_id: {reminder_id}")
+            logger.info(f"   metadata: {metadata}")
             
+            # Normalize scheduled_time to timezone-aware UTC
+            if scheduled_time.tzinfo is None:
+                logger.info(f"⚠️ Scheduled time is naive (no timezone), treating as UTC")
+                # treat naive times as UTC (server expects ISO with timezone ideally)
+                scheduled_time = scheduled_time.replace(tzinfo=timezone.utc)
+                logger.info(f"✅ Converted to timezone-aware: {scheduled_time}")
+            else:
+                logger.info(f"✅ Scheduled time already has timezone: {scheduled_time.tzinfo}")
+                # convert to UTC
+                scheduled_time = scheduled_time.astimezone(timezone.utc)
+                logger.info(f"✅ Converted to UTC: {scheduled_time}")
+
+            # Use timezone-aware current time (UTC)
+            current_time = datetime.now(timezone.utc)
+            logger.info(f"🕐 Current server time (UTC): {current_time} (type: {type(current_time)}, tzinfo: {current_time.tzinfo})")
+            logger.info(f"🕐 Scheduled time (UTC): {scheduled_time} (type: {type(scheduled_time)}, tzinfo: {scheduled_time.tzinfo})")
+            
+            try:
+                time_diff = (scheduled_time - current_time).total_seconds()
+                logger.info(f"🕐 Time difference (seconds): {time_diff}")
+            except Exception as e:
+                logger.error(f"❌ Error calculating time difference: {e}")
+                logger.error(f"   current_time: {current_time}, tzinfo: {current_time.tzinfo}")
+                logger.error(f"   scheduled_time: {scheduled_time}, tzinfo: {scheduled_time.tzinfo}")
+                raise
+
             # Validate scheduled time
-            if scheduled_time <= datetime.now():
-                raise ValueError(f"Scheduled time {scheduled_time} must be in the future (current: {datetime.now()})")
+            if scheduled_time <= current_time:
+                raise ValueError(f"Scheduled time {scheduled_time} must be in the future (current: {current_time})")
             
             # Create reminder data
             reminder_data = {
