@@ -13,14 +13,15 @@ from app.models.schemas import ConversationRequest, ConversationResponse
 from app.services.orchestrator import orchestrator
 from app.services.stt import STTService
 from app.services.tts import TTSService
-from app.services.chatgpt_direct import ChatGPTService
+from app.services.chatgpt_direct import chatgpt_direct_service
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 stt_service = STTService()
 tts_service = TTSService()
-chat_service = ChatGPTService()
+# Use the singleton chatgpt_direct_service from chatgpt_direct module
+chat_service = chatgpt_direct_service
 
 
 @router.post("/voice/process", response_model=ConversationResponse)
